@@ -1,0 +1,31 @@
+.listItems {
+  list-style: none;
+  max-width: 39rem;
+  margin: 0;
+  padding: 0;
+}
+
+.items {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.text {
+  padding: 0.5rem;
+  white-space: initial;
+}
+
+.strike {
+  padding: 0.5rem;
+  white-space: initial;
+  text-decoration: line-through;
+}
+
+.button {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}

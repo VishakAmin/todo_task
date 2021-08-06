@@ -1,0 +1,39 @@
+.listItem {
+  margin: 1rem 0;
+  background: #3d3635;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  border-radius: 10px;
+  color: white;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;           
+}
+
+.button {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.items {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.text {
+  font-size: large;
+  padding: 0.5rem;
+  white-space: initial;
+}
+
+.strike {
+  font-style: italic;
+  font-size: large;
+  padding: 0.5rem;
+  white-space: initial;
+  text-decoration: line-through;
+}
