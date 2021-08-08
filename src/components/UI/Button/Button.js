@@ -3,10 +3,25 @@ import classes from "./Button.module.css"
 
 //passing color as classes
 const Button = ({type, onClick, children, color}) => {
+
+  let colorClasses = classes.btn;
+
+  if (color === "red"){
+    colorClasses = classes.red
+  }
+
+  if (color === "green"){
+    colorClasses = classes.green
+  }
+
+  if (color === "yellow"){
+    colorClasses = classes.yellow
+  }
+
   return (
     <div>
-        <button type={type} onClick={onClick} className={ color === "red" ? classes.red :  color === "green" ? classes.green : color === "yellow"? classes.button: classes.btn} >
-            {children}
+        <button type={type} onClick={onClick} className={ colorClasses } >
+          {children}
         </button>
     </div>
   )

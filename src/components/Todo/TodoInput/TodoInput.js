@@ -1,47 +1,46 @@
 import React,{useState} from 'react'
 import Button from '../../UI/Button/Button';
+import Select from '../../UI/Select/Select';
 
 import classes from  "./TodoInput.module.css"
 
-const TodoInput = (props) => {
+const TodoInput = ({edit, onAddTodo, onSubmit}) => {
 
-  const [inputValue, setInputValue] = useState(props.edit ?  props.edit.value : "");  
-  const [priorty, setPriorty] = useState("")
+  const [inputValue, setInputValue] = useState(edit ?  edit.value : "");  
+  const [priority, setPriority] = useState(edit ? edit.priority : "" )
 
-  
   //mobex
   const todoInputChangeHandler = (e) => {
     setInputValue(e.target.value)
   }
   
-
-  const todoPriortyChangeHandler = (e) => {
-    setPriorty(e.target.value)
+  const todoPriorityChangeHandler = (e) => {
+    setPriority(e.target.value)
   }
   
   const formSubmitHandler = (e) => {
     e.preventDefault();
-    props.edit ? props.onSubmit(inputValue) : props.onAddTodo(inputValue, priorty)
+    edit ? onSubmit(inputValue,priority) : onAddTodo(inputValue, priority)
     console.log(inputValue);
     setInputValue("")
-    setPriorty("")
+    setPriority("")
   }
 
-  
-  const buttonValue = props.edit ?  "Update" : "Add"
-  const placeholderValue = props.edit ? "Update your Todo" : "Enter your todo"
-
+  const buttonValue = edit ?  "Update" : "Add"
+  const placeholderValue = edit ? "Update your Todo" : "Enter your todo"
+  console.log(edit);
   return (
 
-    <form onSubmit={formSubmitHandler} className={classes.form}>
+    <form onSubmit={formSubmitHandler}>
         <div className={classes.formControl}>
           <input type="text" value={inputValue} required onChange={todoInputChangeHandler} placeholder={placeholderValue}/>
-          <select value={priorty}  required onChange={todoPriortyChangeHandler}> 
-                <option value="" disabled hidden>Choose Priorty</option>
+          <Select value={priority} onChange={todoPriorityChangeHandler} required>
+                <option value="" disabled hidden>Choose Priority</option>
                 <option value = "low" >Low</option>
                 <option value = "medium">Medium</option>
                 <option value = "high"> High</option>
-          </select>
+          </Select>
+          
           <Button type="submit">{buttonValue}</Button>
        </div>
     </form>

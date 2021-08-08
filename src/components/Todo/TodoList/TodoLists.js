@@ -1,28 +1,23 @@
 import React from 'react'
 import TodoListItem from '../TodoListItem/TodoListItem'
-import classes from "./TodoList.module.css"
+import classes from "./TodoLists.module.css"
 
-const TodoLists = props => {
+const TodoLists = ({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list}) => {
   return (
     <ul className={classes.listItems}>
-      { props.list.map(list => (
+      { list.map(list => (
         <TodoListItem
           key={list.id}
           id={list.id}
-          onDelete={props.onDeletelist}
-          onComplete={props.onCompletedList}
-          onUpdate={props.onUpdateTodoList}
-          onEdit={props.onEditList}
+          onDelete={onDeletelist}
+          onComplete={onCompletedList}
+          onUpdate={onUpdateTodoList}
+          onEdit={onEditList}
           text = {list.text}
           comp = {list.completed}
+          priority = {list.priority}
 
         > 
-        {/* <div className={classes.items}>
-          <div className={ list.completed ? classes.strike :  classes.text}>
-            {list.text}            
-          </div>
-        </div> */}
-
         </TodoListItem>
       ))
       }

@@ -3,45 +3,48 @@ import Button from '../../UI/Button/Button'
 import TodoInput from '../TodoInput/TodoInput'
 import classes from "./TodoListItem.module.css"
 
-const TodoListItem = (props) => {
+const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp}) => {
 
   const [edit, setEdit] = useState({
     id: null,
-    value : ""
+    value : "",
+    priority: "",
   })
 
   const deleteHandler = () => {
-    props.onDelete(props.id)
+    onDelete(id)
   }
 
   const completeHandler = () => {
-    props.onComplete(props.id)
+    onComplete(id)
   }
 
-  const submitHandler = (value) => {
-      props.onUpdate(edit.id, value)
+  const submitHandler = (value, priority) => {
+      onUpdate(edit.id, value, priority)
       setEdit({
         id: null,
         value : ""
       })
   }
-  if(edit.id){
-    return <TodoInput edit={edit} onSubmit={submitHandler}/>
-  }
 
+  
   return (
-    <li className={classes.listItem}>
-        <div className={classes.items}>
-          <div className={ props.comp ? classes.strike :  classes.text}>
-            {props.text}            
-          </div>
-        </div>
-        <div className={classes.button}> 
-            <Button color= "red" onClick={deleteHandler}>Delete</Button>
-            {props.comp ? "":<Button color= "yellow" onClick={() => setEdit({id: props.id, value:props.text})}>Update</Button>}
-            <Button color="green" onClick={completeHandler}>{props.comp ? "Incompete" : "Complete"}</Button>                          
-          </div>
-    </li>
+      <>
+          {edit.id ? (<TodoInput edit={edit} onSubmit={submitHandler}/>) : (
+               <li className={classes.listItem}>
+               <div className={classes.items}>
+                 <div className={ classes.text}>
+                   {text}            
+                 </div>
+                </div>
+                <div className={classes.button}> 
+                <Button color= "red" onClick={deleteHandler}>Delete</Button>
+                  {comp ? "":<Button color= "yellow" onClick={() => setEdit({id: id, value:text, priority:priority})}>Update</Button>}
+                <Button color="green" onClick={completeHandler}>{comp ? "Incompete" : "Complete"}</Button>                          
+              </div>
+              </li>
+          )}
+      </> 
   )
 }
 
