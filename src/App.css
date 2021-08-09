@@ -16,6 +16,9 @@
 
 #select-list{
  display: flex;
+ width: 40rem;
+ max-width: 80%;
+ margin: 3rem auto;
 }
 
 #select{

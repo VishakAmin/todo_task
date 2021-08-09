@@ -6,6 +6,7 @@ import TodoLists from './components/Todo/TodoList/TodoLists';
 import uuid from 'react-uuid'
 import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
+import {DragDropContext, Droppable} from "react-beautiful-dnd"
 
 const getlocalStorageItems = () => {
   const todo = localStorage.getItem('lists');
@@ -23,7 +24,7 @@ function App() {
   const [incompleteTodo, setIncompletedTodo] = useState([])  
   const [priorityFilter,  setPriorityFilter] = useState("all")
   const [todoFilter, setTodoFilter] = useState([])
-  const [sortType, setSortType] = useState()
+  const [sortType, setSortType] = useState("")
   
  
   useEffect(() => {
@@ -77,7 +78,7 @@ function App() {
   }
 
   const removeAllList = () => {
-    setTodoList([])
+    setTodoList(todoList.filter(list => list.completed === false))
     setPriorityFilter("")
     setSortType("")
   }
@@ -110,15 +111,65 @@ function App() {
 
   if (incompleteTodo.length > 0) {
     todo = (
-      <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
+      <Droppable droppableId="list">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
+          <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
+        {provided.placeholder}
+        </div>
+      )
+  }
+  </Droppable>
     )
   }
 
   if (completedTodo.length > 0 ) {
     compTodo = (
+      <Droppable droppableId="complist">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
       <TodoLists list={completedTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} />
+      {provided.placeholder}
+      </div>
+
     )
   }
+  </Droppable>
+  )}
+
+  const onDragEnd = (result) => {
+      const {draggableId, destination, source} = result;
+
+      if(!destination){
+        return
+      }
+      if (destination.index === source.index && destination.droppableId === source.droppableId) {
+        return;
+    }
+    
+    if(destination.droppableId === source.droppableId){
+      const newTodo = [...todoList]
+      const dragableItem = newTodo[source.index]
+      newTodo.splice(source.index, 1)
+      newTodo.splice(destination.index, 0, dragableItem)
+      console.log("dsdsdsd",newTodo);
+      setTodoList(newTodo)
+       setCompletedTodo(todoList.filter(list => list.completed === true))
+       setIncompletedTodo(todoList.filter(list => list.completed === false))
+      return
+    }
+
+    if (destination.droppableId !== source.droppableId) {
+        completedTodolist(draggableId)
+  }
+
+
+  }
+  
 
   return (
     <div >
@@ -128,8 +179,8 @@ function App() {
       <section id="todolist-form">
         <TodoInput onAddTodo={addTodoList}/>
       </section>
-      <section id="lists">
-        <div id="select-list">
+      
+      <div id="select-list">
           <div id="select">
           <Select value={priorityFilter} onChange={handlePriorityFilter}>             
                 <option value = "all" >All</option>
@@ -141,13 +192,16 @@ function App() {
 
           <div id="select">
           <Select value={sortType} onChange={handleSort}>             
-                <option value = "" disabled selected >Choose Sort</option>
+                <option value = "" disabled  >Choose Sort</option>
                 <option value = "asc" >aA-zZ</option>
                 <option value = "dsc">zZ-aA</option>
            </Select>
 
           </div>
         </div>
+
+      <DragDropContext onDragEnd={onDragEnd}>
+      <section id="lists">    
         <h4>Not Completed</h4>
         {todo}
       </section>
@@ -156,9 +210,12 @@ function App() {
         <h4>Completed</h4>
         {compTodo}
       </section>
+      </DragDropContext> 
+      
       <div className="clear-btn">
-        <Button onClick={removeAllList}>Clear List</Button> 
+        <Button onClick={removeAllList}>Clear Completed List</Button> 
       </div>
+
     </div>
   );
 }
