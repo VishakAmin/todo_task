@@ -28,7 +28,7 @@ const TodoInput = ({edit, onAddTodo, onSubmit}) => {
 
   const buttonValue = edit ?  "Update" : "Add"
   const placeholderValue = edit ? "Update your Todo" : "Enter your todo"
-  console.log(edit);
+  
   return (
 
     <form onSubmit={formSubmitHandler}>

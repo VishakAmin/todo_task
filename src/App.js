@@ -1,5 +1,5 @@
 
-import React,{useState, useEffect} from 'react';
+import React,{useState, useEffect, useCallback} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
@@ -7,6 +7,8 @@ import uuid from 'react-uuid'
 import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
+import {Router,Link, Switch, Route} from "react-router-dom" 
+import TodoComp from './components/Todo/TodoComp/TodoComp';
 
 const getlocalStorageItems = () => {
   const todo = localStorage.getItem('lists');
@@ -33,7 +35,6 @@ function App() {
     setIncompletedTodo(todoList.filter(list => list.completed === false))
     },[todoList])
 
-
   let todo = (
     <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>
   )
@@ -54,12 +55,12 @@ function App() {
     console.log(todoList);
   }
 
-  const deleteTodolist = (id) => {
+  const deleteTodolist = useCallback((id) => {
     setTodoList(prevList => {
       const updatedList = prevList.filter(list => list.id !== id);
       return updatedList
     })
-  }
+  },[])
 
   const updateTodoList = (id, newValue, newPriority) => {
     setTodoList(prevList =>  prevList.map( list =>  (
@@ -106,22 +107,15 @@ function App() {
   console.log(completedTodo, incompleteTodo);
   console.log(sortType);
 
-
-  
-
   if (incompleteTodo.length > 0) {
     todo = (
-
-          <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
-    
+      <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
     )
   }
 
   if (completedTodo.length > 0 ) {
     compTodo = (
-  
       <TodoLists list={completedTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} />
-    
   )}
 
   const onDragEnd = (result) => {
@@ -156,13 +150,23 @@ function App() {
 
   return (
     <div >
+      
+
       <h3 className="header">
       What things you wanna do today?
       </h3>
       <section id="todolist-form">
         <TodoInput onAddTodo={addTodoList}/>
       </section>
-      
+    {/* <Switch>
+      <Route exact path="/completed">
+      <section id="lists">    
+        <h4>Not Completed</h4>
+          <TodoComp/>
+      </section>             
+      </Route>
+    </Switch> */}
+
       <div id="select-list">
           <div id="select">
           <Select value={priorityFilter} onChange={handlePriorityFilter}>             
@@ -196,9 +200,8 @@ function App() {
         </div>
       )
   }
-  </Droppable>
+     </Droppable>
       </section>
-
       <section id="lists">
         <h4>Completed</h4>
         <Droppable droppableId="complist">
