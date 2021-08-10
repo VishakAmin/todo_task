@@ -5,23 +5,25 @@ import classes from "./TodoLists.module.css"
 const TodoLists = ({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list}) => {
   return (
     <ul className={classes.listItems}>
-      { list.map(list => (
-        <TodoListItem
-          key={list.id}
-          id={list.id}
-          onDelete={onDeletelist}
-          onComplete={onCompletedList}
-          onUpdate={onUpdateTodoList}
-          onEdit={onEditList}
-          text = {list.text}
-          comp = {list.completed}
-          priority = {list.priority}
+   
+              { list.map((list,index) => (
+                <TodoListItem
+                  key={list.id}
+                  id={list.id}
+                  onDelete={onDeletelist}
+                  onComplete={onCompletedList}
+                  onUpdate={onUpdateTodoList}
+                  onEdit={onEditList}
+                  text = {list.text}
+                  comp = {list.completed}
+                  priority = {list.priority}
+                  index={index}
+                > 
+        
+                </TodoListItem>
+              ))
+              }
 
-        > 
-        </TodoListItem>
-      ))
-      }
-      
     </ul>
 
   )
