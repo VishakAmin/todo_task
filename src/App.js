@@ -48,8 +48,8 @@ function App() {
       updatedList.unshift({text:task, id: uuid(), completed: false, priority:priority })
       return updatedList;
     })
-    setTodoFilter(todoList)
-    setTodoFilter("")
+    // setTodoFilter(todoList)
+    setPriorityFilter("")
     setSortType("")
     console.log(todoList);
   }
@@ -111,34 +111,17 @@ function App() {
 
   if (incompleteTodo.length > 0) {
     todo = (
-      <Droppable droppableId="list">
-      {(provided, snapshot) => (
-         <div
-          ref={provided.innerRef}
-           {...provided.droppableProps}>
+
           <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
-        {provided.placeholder}
-        </div>
-      )
-  }
-  </Droppable>
+    
     )
   }
 
   if (completedTodo.length > 0 ) {
     compTodo = (
-      <Droppable droppableId="complist">
-      {(provided, snapshot) => (
-         <div
-          ref={provided.innerRef}
-           {...provided.droppableProps}>
+  
       <TodoLists list={completedTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} />
-      {provided.placeholder}
-      </div>
-
-    )
-  }
-  </Droppable>
+    
   )}
 
   const onDragEnd = (result) => {
@@ -203,12 +186,33 @@ function App() {
       <DragDropContext onDragEnd={onDragEnd}>
       <section id="lists">    
         <h4>Not Completed</h4>
+        <Droppable droppableId="list">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
         {todo}
+        {provided.placeholder}
+        </div>
+      )
+  }
+  </Droppable>
       </section>
 
       <section id="lists">
         <h4>Completed</h4>
+        <Droppable droppableId="complist">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
         {compTodo}
+        {provided.placeholder}
+      </div>
+
+    )
+  }
+  </Droppable>
       </section>
       </DragDropContext> 
       
