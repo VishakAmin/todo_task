@@ -4,7 +4,7 @@ import Button from '../../UI/Button/Button'
 import TodoInput from '../TodoInput/TodoInput'
 import classes from "./TodoListItem.module.css"
 
-const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp, index}) => {
+const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp, index,compList}) => {
 
   const [edit, setEdit] = useState({
     id: null,
@@ -17,7 +17,7 @@ const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp,
   }
 
   const completeHandler = () => {
-    onComplete(id)
+    onComplete(id,comp,text, priority)
   }
 
   const submitHandler = (value, priority) => {
@@ -31,7 +31,7 @@ const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp,
   
   return (
       <>
-        {comp ?  (
+        {compList ?  (
             <li className={classes.listItem}>
               <div className={classes.items}>
                 <div className={ classes.text}>

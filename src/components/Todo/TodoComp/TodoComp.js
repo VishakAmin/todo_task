@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import TodoLists from '../TodoList/TodoLists';
 
 const getlocalStorageItems = () => {
@@ -13,8 +13,10 @@ const getlocalStorageItems = () => {
 }
 
 const TodoComp = () => {
-    const [compList, setCompList] = useState(getlocalStorageItems())
-    console.log(compList);
+    const [compList, setCompList] = useState([])
+    useEffect(() => {
+        setCompList(getlocalStorageItems())
+      }, [])
     return (
         <div>
             <section id="lists">
@@ -22,7 +24,7 @@ const TodoComp = () => {
                     Completed Todo List
                 </h3>
             { 
-                compList.length > 0 ?  <TodoLists list={compList} comp={true}/> : 
+                compList.length > 0 ?  <TodoLists list={compList} compList={true}/> : 
                 <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>
             }
             </section>

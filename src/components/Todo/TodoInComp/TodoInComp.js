@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import TodoLists from '../TodoList/TodoLists';
 
 
@@ -16,8 +16,11 @@ const getlocalStorageItems = () => {
 
 
 const TodoInComp = () => {
-    const [inCompList, setInCompList] = useState(getlocalStorageItems())
-    console.log(inCompList);
+    const [inCompList, setInCompList] = useState([])
+    useEffect(() => {
+      setInCompList(getlocalStorageItems())
+    }, [])
+
     return (
         <div>
               <section id="lists">
@@ -25,7 +28,7 @@ const TodoInComp = () => {
                   Incompleted Todo List
                </h3>
             {
-              inCompList.length ? <TodoLists list={inCompList} comp={true}/> : <p style={{textAlign:"center"}}>No Work Completed yet. </p>
+              inCompList.length > 0 ? <TodoLists list={inCompList} compList={true}/> : <p style={{textAlign:"center"}}>No Work Completed yet. </p>
             }
            </section>
         </div>

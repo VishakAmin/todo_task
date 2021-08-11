@@ -2,7 +2,7 @@ import React,{useRef} from 'react'
 import TodoListItem from '../TodoListItem/TodoListItem'
 import classes from "./TodoLists.module.css"
 
-const TodoLists = React.memo(({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list,comp=false}) => {
+const TodoLists = React.memo(({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list,compList=false}) => {
 
   const renders = useRef(0)
   console.log("Render", renders.current++);
@@ -21,7 +21,7 @@ const TodoLists = React.memo(({onDeletelist, onCompletedList,onUpdateTodoList,on
                   comp = {list.completed}
                   priority = {list.priority}
                   index={index}
-                  comp = {comp}
+                  compList = {compList}
                 /> 
               ))
               }
