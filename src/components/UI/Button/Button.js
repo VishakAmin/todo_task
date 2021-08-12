@@ -30,4 +30,3 @@ const Button = ({type, onClick, children, color}) => {
 
 
 export default Button
-

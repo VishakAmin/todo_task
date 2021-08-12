@@ -1,5 +1,5 @@
 
-import React,{useState, useEffect} from 'react';
+import React,{useState, useEffect, useCallback} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
@@ -7,32 +7,49 @@ import uuid from 'react-uuid'
 import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
+import firebase from './firebase';
 
-const getlocalStorageItems = () => {
-  const todo = localStorage.getItem('lists');
-  if(todo){
-    return JSON.parse(todo)
-  }
-  else{
-    return []
-  }
-}
+
+// const getlocalStorageItems = () => {
+//   const todo = localStorage.getItem('lists');
+//   if(todo){
+//     return JSON.parse(todo)
+//   }
+//   else{
+//     return []
+//   }
+// }
 
 function App() {
-  const [todoList, setTodoList] = useState(getlocalStorageItems())
-  const [completedTodo, setCompletedTodo] = useState([])
+  const [todoList, setTodoList] = useState([])
   const [incompleteTodo, setIncompletedTodo] = useState([])  
   const [priorityFilter,  setPriorityFilter] = useState("all")
   const [todoFilter, setTodoFilter] = useState([])
   const [sortType, setSortType] = useState("")
+  const [abc, setAbc] = useState([])
   
- 
-  useEffect(() => {
-    localStorage.setItem('lists', JSON.stringify(todoList))
-    setCompletedTodo(todoList.filter(list => list.completed === true))
-    setIncompletedTodo(todoList.filter(list => list.completed === false))
-    },[todoList])
+   const ref = firebase.firestore().collection("todo")
+  
+  
+   
+  
 
+  useEffect(() => {
+    const fetchData = () => {
+      ref.get().then((item) => {
+        const items = item.docs.map((doc) => doc.data())
+        setTodoList(items)
+  
+      }) 
+    }
+    
+    fetchData()
+    },[])
+
+
+    console.log("todo",todoList);
+    console.log("Incomp",incompleteTodo);
+    console.log(sortType);
 
   let todo = (
     <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>
@@ -43,41 +60,83 @@ function App() {
   )
 
   const addTodoList = (task, priority) => {
-    setTodoList(prevList => {
-      const updatedList = [...prevList];
-      updatedList.unshift({text:task, id: uuid(), completed: false, priority:priority })
-      return updatedList;
+    const newTodo = {text:task, id: uuid(), completed: false, priority:priority }
+    ref
+    .doc(newTodo.id)
+    .set(newTodo)
+    .then(() => {
+      setTodoList(prevList => [newTodo,...prevList])
     })
-    setTodoFilter(todoList)
-    setTodoFilter("")
+    .catch((err) => {
+      console.log(err);
+    })
+    setPriorityFilter("")
     setSortType("")
-    console.log(todoList);
   }
 
-  const deleteTodolist = (id) => {
-    setTodoList(prevList => {
-      const updatedList = prevList.filter(list => list.id !== id);
-      return updatedList
+  const deleteTodolist = useCallback((id) => {
+
+    ref
+    .doc(id)
+    .delete()
+    .then(() => {
+      setTodoList(prevList =>  prevList.filter(list => list.id !== id))
     })
-  }
+    .catch((err) => {
+      console.log(err);
+    });
+  },[])
 
   const updateTodoList = (id, newValue, newPriority) => {
-    setTodoList(prevList =>  prevList.map( list =>  (
-      list.id === id ? {text:newValue, id:id, completed:false, priority:newPriority} : list
-    )))
+
+    const updateTodo = {text:newValue, id:id, completed:false, priority:newPriority}
+
+    ref
+    .doc(id)
+    .update(updateTodo)
+    .then(() => {
+      setTodoList(prevList =>  prevList.map( list =>  (
+        list.id === id ? updateTodo : list
+      )))
+    })
+
     setPriorityFilter("")
-    console.log(id,newValue);
+
   }
 
-  const completedTodolist = (id) => {
-      let completed = todoList.map(list=>{
-        return list.id === id ? { ...list, completed: !list.completed } : { ...list};
+  const getTodoById = (id) => (
+    ref
+    .doc(id)
+    .get()
+    .then((item) => {
+      return item.data()
+    })
+  )
+
+
+
+  const completedTodolist = async (id) => {
+  
+    const newListUpdate = await getTodoById(id)
+      
+    console.log(newListUpdate);
+
+      ref
+      .doc(id)
+      .update({completed:!newListUpdate.completed})
+      .then(() => {
+        setTodoList(prevList => prevList.map( list => (
+          list.id === id ? {text:newListUpdate.text, id:id ,completed: !newListUpdate.completed, priority : newListUpdate.priority} : list
+        )
+        ))
       })
-      setTodoList(completed)
-      setPriorityFilter("")
   }
 
   const removeAllList = () => {
+    ref
+    .doc()
+
+
     setTodoList(todoList.filter(list => list.completed === false))
     setPriorityFilter("")
     setSortType("")
@@ -87,8 +146,8 @@ function App() {
     setPriorityFilter(e.target.value)
     const filterTodo = e.target.value === "all" ? todoList : e.target.value === "high" ? todoList.filter(list => list.priority === "high")  : e.target.value === "low" ? todoList.filter(list => list.priority === "low") : todoList.filter(list => list.priority === "medium")  
     setTodoFilter(filterTodo)
-    setCompletedTodo(filterTodo.filter(list => list.completed === true))
-    setIncompletedTodo(filterTodo.filter(list => list.completed === false))
+    // setCompletedTodo(filterTodo.filter(list => list.completed === true))
+    // setIncompletedTodo(filterTodo.filter(list => list.completed === false))
   }
   
   const handleSort = (e) => {
@@ -102,48 +161,25 @@ function App() {
     console.log("sasas",sortArray);
   }
   
-  console.log(todoList, todoFilter);
-  console.log(completedTodo, incompleteTodo);
-  console.log(sortType);
 
+  const incomp =  todoList.filter(list => list.completed === false)
+  const comp =  todoList.filter(list => list.completed === true)
 
-  
-
-  if (incompleteTodo.length > 0) {
+  console.log("INCOMPELETD", comp);
+  if ( incomp.length > 0&&  todoList.length > 0) {
     todo = (
-      <Droppable droppableId="list">
-      {(provided, snapshot) => (
-         <div
-          ref={provided.innerRef}
-           {...provided.droppableProps}>
-          <TodoLists list={incompleteTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
-        {provided.placeholder}
-        </div>
-      )
-  }
-  </Droppable>
+      <TodoLists list={incomp} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
     )
   }
 
-  if (completedTodo.length > 0 ) {
+  if (comp.length >0 && todoList.length > 0 ) {
     compTodo = (
-      <Droppable droppableId="complist">
-      {(provided, snapshot) => (
-         <div
-          ref={provided.innerRef}
-           {...provided.droppableProps}>
-      <TodoLists list={completedTodo} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} />
-      {provided.placeholder}
-      </div>
-
-    )
-  }
-  </Droppable>
+      <TodoLists list={comp} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} />
   )}
 
   const onDragEnd = (result) => {
       const {draggableId, destination, source} = result;
-
+      console.log(result);
       if(!destination){
         return
       }
@@ -158,8 +194,8 @@ function App() {
       newTodo.splice(destination.index, 0, dragableItem)
       console.log("dsdsdsd",newTodo);
       setTodoList(newTodo)
-       setCompletedTodo(todoList.filter(list => list.completed === true))
-       setIncompletedTodo(todoList.filter(list => list.completed === false))
+      //  setCompletedTodo(todoList.filter(list => list.completed === true))
+      //  setIncompletedTodo(todoList.filter(list => list.completed === false))
       return
     }
 
@@ -173,13 +209,14 @@ function App() {
 
   return (
     <div >
+      
+
       <h3 className="header">
       What things you wanna do today?
       </h3>
       <section id="todolist-form">
         <TodoInput onAddTodo={addTodoList}/>
       </section>
-      
       <div id="select-list">
           <div id="select">
           <Select value={priorityFilter} onChange={handlePriorityFilter}>             
@@ -203,12 +240,32 @@ function App() {
       <DragDropContext onDragEnd={onDragEnd}>
       <section id="lists">    
         <h4>Not Completed</h4>
+        <Droppable droppableId="list">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
         {todo}
+        {provided.placeholder}
+        </div>
+      )
+  }
+     </Droppable>
       </section>
-
       <section id="lists">
         <h4>Completed</h4>
+        <Droppable droppableId="complist">
+      {(provided, snapshot) => (
+         <div
+          ref={provided.innerRef}
+           {...provided.droppableProps}>
         {compTodo}
+        {provided.placeholder}
+      </div>
+
+    )
+  }
+  </Droppable>
       </section>
       </DragDropContext> 
       

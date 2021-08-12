@@ -1,8 +1,11 @@
-import React from 'react'
+import React,{useRef} from 'react'
 import TodoListItem from '../TodoListItem/TodoListItem'
 import classes from "./TodoLists.module.css"
 
-const TodoLists = ({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list}) => {
+const TodoLists = React.memo(({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,list,compList=false}) => {
+
+  const renders = useRef(0)
+  console.log("Render", renders.current++);
   return (
     <ul className={classes.listItems}>
    
@@ -18,15 +21,14 @@ const TodoLists = ({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,li
                   comp = {list.completed}
                   priority = {list.priority}
                   index={index}
-                > 
-        
-                </TodoListItem>
+                  compList = {compList}
+                /> 
               ))
               }
 
     </ul>
 
   )
-}
+});
 
 export default TodoLists
