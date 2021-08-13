@@ -6,6 +6,7 @@ const TodoDetail = () => {
     const [todo, setTodo] = useState([])
     const params = useParams();
     const database = firebase.firestore().collection("todo")  
+
     const getTodoById = useCallback((id) => {              
         database
         .doc(id)
@@ -35,4 +36,4 @@ const TodoDetail = () => {
     )
 }
 
-export default TodoDetail
+export default TodoDetail;

@@ -184,8 +184,6 @@ function App() {
       newTodo.splice(destination.index, 0, dragableItem)
       console.log("dsdsdsd",newTodo);
       setTodoList(newTodo)
-      //  setCompletedTodo(todoList.filter(list => list.completed === true))
-      //  setIncompletedTodo(todoList.filter(list => list.completed === false))
       return
     }
 
@@ -199,8 +197,6 @@ function App() {
 
   return (
     <div >
-      
-
       <h3 className="header">
       What things you wanna do today?
       </h3>

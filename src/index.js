@@ -8,6 +8,8 @@ import TodoComp from './components/Todo/TodoComp/TodoComp';
 import Navbar from './components/UI/Navbar/Navbar';
 import TodoInComp from './components/Todo/TodoInComp/TodoInComp';
 import TodoDetail from './components/Todo/TodoDetail/TodoDetail';
+import SignUp from './components/Todo/SignUp/SignUp';
+import SignIn from './components/Todo/SignIn/SignIn';
 
 
 ReactDOM.render(
@@ -15,6 +17,12 @@ ReactDOM.render(
     <Router>
       <Navbar/>
       <Switch>
+        <Route exact path="/sign-up">
+            <SignUp/>
+        </Route>
+        <Route exact path="/sign-in">
+            <SignIn/>
+        </Route>
         <Route exact path="/completed">
             <TodoComp />
         </Route>

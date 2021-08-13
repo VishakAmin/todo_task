@@ -19,6 +19,9 @@ const Navbar = () => {
                     <li>
                         <NavLink to="/not-completed" activeClassName={classes.active}> Not Completed</NavLink>
                    </li>
+                   <li>
+                        <NavLink to="/sign-in" activeClassName={classes.active}> Logout</NavLink>
+                   </li>
                 </ul>
              </nav>
  
