@@ -3,7 +3,7 @@ import Button from '../../UI/Button/Button'
 import classes from "./SignUp.module.css"
 import {Link,useHistory} from "react-router-dom"
 import firebase from '../../../firebase';
-import { nanoid } from 'nanoid';
+import { useAuth } from '../../contexts/AuthContext';
 
 
 const SignUp = () => {
@@ -11,11 +11,14 @@ const SignUp = () => {
     const emailInputRef = useRef()
     const passwordInputRef = useRef()
     const history = useHistory()
+    const {signup} = useAuth();
+
     // const database = firebase.firestore().collection("user")  
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [error, setError] = useState('')
 
-    const onSubmitHandler = (e) => {
+    const onSubmitHandler =  async (e) => {
         e.preventDefault();
         const name = nameInputRef.current.value
         const email = emailInputRef.current.value
@@ -23,27 +26,31 @@ const SignUp = () => {
 
         if (password.length < 8){
             alert("Password Should be greater than 8 character")
+            setError("Password Should be greater than 8 character")
         }
-
-        firebase.auth().createUserWithEmailAndPassword(
-            email,
-            password
-        ).then((response)=>{
-            return firebase.firestore().collection("user")
+     
+        try {
+            setIsLoading(true)
+            setError("")
+            signup(email, password).then((response) =>{
+            firebase.firestore().collection("user")
             .doc(response.user.uid)
             .set({
                 id:response.user.uid,
-                name:name,
+                name:name
             })
              .then(() => {
-                setMessage(`${name} have been SignUp Successfully`)
                 history.push("/sign-in")              
-             })
-        }).catch((err) => {
-        setMessage(err.message)              
-        })
-
-        console.log(message);
+             })                
+            }).catch(err => {
+                setError("Failed to create a account. Please Try Again")
+            })
+        }
+        catch{
+            setError("Failed to create a account. Please Try Again")
+        }
+        setIsLoading(false)
+    //    console.log(message);
         }
 
 
@@ -51,7 +58,7 @@ const SignUp = () => {
         <div>
             <section id="todolist-form">
             <h1 className={classes.header}>Just the Basics</h1>
-            {message}
+            {error}
             <form className={classes.formControl} onSubmit={onSubmitHandler}>
                 <div>
                     <label htmlFor="text">
@@ -72,7 +79,7 @@ const SignUp = () => {
                     <input type="password" required placeholder="Enter Password" ref={passwordInputRef}/>
                 </div> 
                 <div>
-                    <Button>Sign Up</Button>               
+                    <Button disabled={isLoading}>Sign Up</Button>               
                 </div>
                 <div className={classes.footer}>
                     <Link to="/sign-in">

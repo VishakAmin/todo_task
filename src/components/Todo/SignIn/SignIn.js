@@ -1,17 +1,21 @@
-import React,{useRef,useContext} from 'react'
+import React,{useRef, useState} from 'react'
 import Button from '../../UI/Button/Button'
 import classes from './SignIn.module.css'
 import {Link,useHistory} from "react-router-dom"
-import AuthContext from '../../store/auth-context'
 import firebase from '../../../firebase';
+import { useAuth } from '../../contexts/AuthContext';
 
 
 const SignIn = () => {
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState('')
+
     const emailInputRef = useRef()
     const passwordInputRef = useRef()
     const history = useHistory()
-    const authctx = useContext(AuthContext)
+    const {login} = useAuth()
 
 
     const onSubmitHandler = async (e) => {
@@ -19,22 +23,25 @@ const SignIn = () => {
         const email = emailInputRef.current.value
         const password = passwordInputRef.current.value
 
-        const data ={ 
-            email: email,
-            password:password
+        try{
+             setIsLoading(true)
+             await login(email, password)
+             history.push("/")
+            
         }
-
-        firebase.auth().signInWithEmailAndPassword(data.email, data.password).then((res) =>{
-            console.log("True",res);
-
-        })
+        catch(err) {
+            setError("Failed to Login. Password or Email is Invalid") 
+        }
+        setIsLoading(false)
     }
-    console.log(authctx.isLoggedIn);
+  
 
     return (
         <div>
             <section id="todolist-form">
+
             <h1 className={classes.header}>Login In</h1>
+                {error}
             <form className={classes.formControl} onSubmit={onSubmitHandler}>
                 <div>
                     <label htmlFor="email">
@@ -49,7 +56,7 @@ const SignIn = () => {
                     <input type="password" required placeholder="Enter Password" ref={passwordInputRef}/>
                 </div> 
                 <div>
-                    <Button>Sign In</Button>               
+                    <Button disabled={isLoading}>Sign In</Button>               
                 </div>
                 <div className={classes.footer}>
                     <Link to="/sign-up">

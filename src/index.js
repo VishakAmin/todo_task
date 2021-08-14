@@ -10,10 +10,12 @@ import TodoInComp from './components/Todo/TodoInComp/TodoInComp';
 import TodoDetail from './components/Todo/TodoDetail/TodoDetail';
 import SignUp from './components/Todo/SignUp/SignUp';
 import SignIn from './components/Todo/SignIn/SignIn';
+import { AuthProvider } from './components/contexts/AuthContext';
 
 
 ReactDOM.render(
   <React.StrictMode>
+    <AuthProvider>
     <Router>
       <Navbar/>
       <Switch>
@@ -38,6 +40,8 @@ ReactDOM.render(
         
       </Switch>
       </Router>
+      </AuthProvider>
+
   </React.StrictMode>,
   document.getElementById('root')
 );
