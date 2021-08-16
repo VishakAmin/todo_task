@@ -14,11 +14,13 @@ export const AuthProvider = ({children}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [name, setName] = useState("")
     const [currentUser, setCurrentUser] = useState()
+    const [currentUserID, setCurrentUserID ] = useState()
     const [loading, setLoading] = useState(true)
     
     useEffect(() => {
        const unsubcribe =  firebase.auth().onAuthStateChanged(user => {
            setCurrentUser(user)
+//           setCurrentUserID(user.uid)
            setLoading(false)            
         })
 

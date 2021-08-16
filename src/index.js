@@ -11,6 +11,7 @@ import TodoDetail from './components/Todo/TodoDetail/TodoDetail';
 import SignUp from './components/Todo/SignUp/SignUp';
 import SignIn from './components/Todo/SignIn/SignIn';
 import { AuthProvider } from './components/contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
 
 ReactDOM.render(
@@ -25,15 +26,9 @@ ReactDOM.render(
         <Route exact path="/sign-in">
             <SignIn/>
         </Route>
-        <Route exact path="/completed">
-            <TodoComp />
-        </Route>
-        <Route exact path="/not-completed">
-            <TodoInComp/>
-        </Route>
-        <Route exact path="/">
-          <App/>
-        </Route>
+        <PrivateRoute exact path="/completed" component={TodoComp}/>   
+        <PrivateRoute exact path="/not-completed" component={TodoInComp}/>
+        <PrivateRoute exact path="/" component={App}/>
         <Route exact path="/todo/:id">
           <TodoDetail/>
         </Route>

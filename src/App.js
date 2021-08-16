@@ -8,6 +8,8 @@ import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
 import firebase from './firebase';
+import { useAuth } from './components/contexts/AuthContext';
+
 
 
 function App() {
@@ -16,13 +18,19 @@ function App() {
   const [priorityFilter,  setPriorityFilter] = useState("all")
   const [todoFilter, setTodoFilter] = useState([])
   const [sortType, setSortType] = useState("")
+  const {currentUser}  = useAuth()
   
-  const database = firebase.firestore().collection("todo")  
+  const database = firebase.firestore().collection("user")  
   const fetchData =  useCallback(() => {
-    database.get().then((item) => {
-      const items = item.docs.map((doc) => doc.data())
-      setTodoList(items)
-      setTodoFilter(items)
+    database
+    .doc(currentUser.uid)
+    .get().then((item) => {
+     const items = item.data()
+     const result = Object.entries(items).map((id) => id[1] )
+       setTodoList(result)
+       setTodoFilter(result)
+      console.log("Dasdad",result);
+     console.log(items);
     }) 
   },[])
 
@@ -34,6 +42,7 @@ function App() {
     console.log("todo",todoList);
     console.log("Incomp",incompleteTodo);
     console.log(sortType);
+    console.log(currentUser.uid);
 
   let todo = (
     <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>
@@ -44,12 +53,15 @@ function App() {
   )
 
   const addTodoList = (task, priority) => {
-    const newTodo = {text:task, id: nanoid(), completed: false, priority:priority, created: firebase.firestore.FieldValue.serverTimestamp()}
+
+    const id = nanoid();
+    const newTodo = {}
+    newTodo[id] = { text:task, id: id, completed: false, priority:priority } 
     database
-    .doc(newTodo.id)
-    .set(newTodo)
+    .doc(currentUser.uid)
+    .set(newTodo, {merge:true})
     .then(() => {
-      setTodoList(prevList => [newTodo,...prevList])
+      setTodoList(prevList => [newTodo[id],...prevList])
     })
     .catch((err) => {
       console.log(err);

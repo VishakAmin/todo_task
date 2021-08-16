@@ -1,12 +1,12 @@
 import React from 'react'
-import {NavLink, useHistory} from "react-router-dom" 
+import {NavLink, useHistory,Link} from "react-router-dom" 
 import { useAuth } from '../../contexts/AuthContext'
 import classes from "./Navbar.module.css"
 
 
 const Navbar = () => {
 
-    const {logout} = useAuth()
+    const {logout, currentUser} = useAuth()
     const history = useHistory();
 
     const onClickHandler = async () => {
@@ -24,7 +24,9 @@ const Navbar = () => {
             <div className={classes.logo}>
                 Todo App
             </div>
-            <nav className={classes.nav}>
+            {currentUser ? (
+                
+                <nav className={classes.nav}>
                 <ul>
                     <li>
                         <NavLink to="/">Home</NavLink>
@@ -36,10 +38,24 @@ const Navbar = () => {
                         <NavLink to="/not-completed" activeClassName={classes.active}> Not Completed</NavLink>
                    </li>
                    <li>
-                        <a onClick={onClickHandler} activeClassName={classes.active} > Logout</a>
+                        <Link onClick={onClickHandler} activeClassName={classes.active} > Logout</Link>
                    </li>
                 </ul>
              </nav>
+            ) : (
+                <nav className={classes.nav}>
+                <ul>
+                    <li>
+                        <NavLink to="/sign-up">Sign Up</NavLink>
+                    </li> 
+                    <li>
+                        <NavLink to="/sign-in">Login</NavLink>
+                    </li> 
+                </ul>
+               </nav>
+
+            )}
+
  
         </header>
      )
