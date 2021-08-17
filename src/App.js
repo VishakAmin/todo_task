@@ -3,13 +3,12 @@ import React,{useState, useEffect, useCallback} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
 import firebase from './firebase';
 import { useAuth } from './components/contexts/AuthContext';
-
 
 
 function App() {
@@ -37,7 +36,8 @@ function App() {
   },[])
 
   useEffect(() => {
-      fetchData()
+    
+    fetchData()
     },[])
 
 
@@ -71,12 +71,11 @@ function App() {
     })
     setPriorityFilter("")
     setSortType("")
-    setTodoFilter(todoList)
   }
 
   const deleteTodolist = useCallback((id) => {
 
-    database
+    ref
     .doc(id)
     .delete()
     .then(() => {
@@ -85,13 +84,13 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-    setTodoFilter(todoList)
   },[])
 
   const updateTodoList = (id, newValue, newPriority) => {
 
     const updateTodo = {text:newValue, id:id, completed:false, priority:newPriority}
-    database
+
+    ref
     .doc(id)
     .update(updateTodo)
     .then(() => {
@@ -99,12 +98,13 @@ function App() {
         list.id === id ? updateTodo : list
       )))
     })
+
     setPriorityFilter("")
-    setTodoFilter(todoList)
+
   }
 
   const getTodoById = (id) => (
-    database
+    ref
     .doc(id)
     .get()
     .then((item) => {
@@ -112,11 +112,15 @@ function App() {
     })
   )
 
+
+
   const completedTodolist = async (id) => {
   
-    const newListUpdate = await getTodoById(id)      
+    const newListUpdate = await getTodoById(id)
+      
     console.log(newListUpdate);
-      database
+
+      ref
       .doc(id)
       .update({completed:!newListUpdate.completed})
       .then(() => {
@@ -125,36 +129,26 @@ function App() {
         )
         ))
       })
-      setTodoFilter(todoList)
   }
 
-  const removeAllList = async () => {
-    
-    const completeList = await firebase.firestore().collection('todo').where("completed","==",true).get()
+  const removeAllList = () => {
+    ref
+    .doc()
 
-    completeList.forEach(doc => {
-        console.log(doc.data());
-        database
-        .doc(doc.data().id)
-        .delete()
-        .then(() => {
-          setTodoList(todoList.filter(list => list.completed === false))
-        }) 
-    });
-    setTodoFilter(todoList)
+
+    setTodoList(todoList.filter(list => list.completed === false))
     setPriorityFilter("")
     setSortType("")
-    
   }
 
   const handlePriorityFilter = (e) => {
-    setPriorityFilter(e.target.value)  
-    const filterTodo = e.target.value === "all" ? todoFilter : e.target.value === "high" ? todoFilter.filter(list => list.priority === "high")  : e.target.value === "low" ? todoFilter.filter(list => list.priority === "low") : todoFilter.filter(list => list.priority === "medium")  
-    setTodoList(filterTodo)
+    setPriorityFilter(e.target.value)
+    const filterTodo = e.target.value === "all" ? todoList : e.target.value === "high" ? todoList.filter(list => list.priority === "high")  : e.target.value === "low" ? todoList.filter(list => list.priority === "low") : todoList.filter(list => list.priority === "medium")  
+    setTodoFilter(filterTodo)
     // setCompletedTodo(filterTodo.filter(list => list.completed === true))
     // setIncompletedTodo(filterTodo.filter(list => list.completed === false))
   }
- 
+  
   const handleSort = (e) => {
     setSortType(e.target.value);
     const newList = [...todoList]
@@ -199,6 +193,8 @@ function App() {
       newTodo.splice(destination.index, 0, dragableItem)
       console.log("dsdsdsd",newTodo);
       setTodoList(newTodo)
+      //  setCompletedTodo(todoList.filter(list => list.completed === true))
+      //  setIncompletedTodo(todoList.filter(list => list.completed === false))
       return
     }
 
@@ -212,6 +208,8 @@ function App() {
 
   return (
     <div >
+      
+
       <h3 className="header">
       What things you wanna do today?
       </h3>
@@ -242,7 +240,7 @@ function App() {
       <section id="lists">    
         <h4>Not Completed</h4>
         <Droppable droppableId="list">
-      {(provided) => (
+      {(provided, snapshot) => (
          <div
           ref={provided.innerRef}
            {...provided.droppableProps}>
@@ -256,7 +254,7 @@ function App() {
       <section id="lists">
         <h4>Completed</h4>
         <Droppable droppableId="complist">
-      {(provided) => (
+      {(provided, snapshot) => (
          <div
           ref={provided.innerRef}
            {...provided.droppableProps}>

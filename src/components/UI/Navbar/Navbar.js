@@ -3,7 +3,6 @@ import {NavLink, useHistory,Link} from "react-router-dom"
 import { useAuth } from '../../contexts/AuthContext'
 import classes from "./Navbar.module.css"
 
-
 const Navbar = () => {
 
     const {logout, currentUser} = useAuth()

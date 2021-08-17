@@ -2,7 +2,7 @@ import React from 'react'
 import classes from "./Button.module.css"
 
 //passing color as classes
-const Button = ({type, onClick, children, color, disabled}) => {
+const Button = ({type, onClick, children, color}) => {
 
   let colorClasses = classes.btn;
 
@@ -20,7 +20,7 @@ const Button = ({type, onClick, children, color, disabled}) => {
 
   return (
     <div>
-        <button type={type} onClick={onClick} className={ colorClasses } disabled={disabled} >
+        <button type={type} onClick={onClick} className={ colorClasses } >
           {children}
         </button>
     </div>

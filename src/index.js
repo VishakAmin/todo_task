@@ -16,7 +16,6 @@ import PrivateRoute from './components/PrivateRoute';
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthProvider>
     <Router>
       <Navbar/>
       <Switch>
@@ -35,8 +34,6 @@ ReactDOM.render(
         
       </Switch>
       </Router>
-      </AuthProvider>
-
   </React.StrictMode>,
   document.getElementById('root')
 );
