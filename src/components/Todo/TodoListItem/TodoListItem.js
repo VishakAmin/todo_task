@@ -3,19 +3,26 @@ import { Draggable } from 'react-beautiful-dnd'
 import Button from '../../UI/Button/Button'
 import TodoInput from '../TodoInput/TodoInput'
 import classes from "./TodoListItem.module.css"
+import {useHistory} from "react-router-dom" 
+
 
 const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp, index,compList}) => {
+
 
   const [edit, setEdit] = useState({
     id: null,
     value : "",
     priority: "",
   })
+  const history = useHistory()
 
   const deleteHandler = () => {
     onDelete(id)
   }
-
+  const onClickHandler = () => {
+    history.push(`/todo/${id}`)
+  }
+  
   const completeHandler = () => {
     onComplete(id,comp,text, priority)
   }
@@ -48,7 +55,7 @@ const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp,
               ref={provided.innerRef} className={ snapshot.isDragging ? "dragging" : ""}>
 
                              <li className={classes.listItem}>
-                             <div className={classes.items}>
+                             <div className={classes.items} onClick={onClickHandler}>
                                <div className={ classes.text}>
                                  {text}            
                                </div>

@@ -15,12 +15,10 @@ const SignUp = () => {
 
     // const database = firebase.firestore().collection("user")  
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState("");
     const [error, setError] = useState('')
 
     const onSubmitHandler =  async (e) => {
         e.preventDefault();
-        const name = nameInputRef.current.value
         const email = emailInputRef.current.value
         const password = passwordInputRef.current.value
 
@@ -82,7 +80,7 @@ const SignUp = () => {
                 </div>
                 <div className={classes.footer}>
                     <Link to="/sign-in">
-                        <a>Already have a account? Login</a>
+                        Already have a account? Login
                     </Link>
                 </div>
               </form>

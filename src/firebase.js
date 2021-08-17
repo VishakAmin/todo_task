@@ -1,16 +1,16 @@
 import firebase from 'firebase/app';
+import "firebase/auth";
 import "firebase/firestore";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDQJTaquZLHNe9NoQl-588YFVbYPpM-QQE",
-    authDomain: "todo-3796d.firebaseapp.com",
-    projectId: "todo-3796d",
-    storageBucket: "todo-3796d.appspot.com",
-    messagingSenderId: "906043148708",
-    appId: "1:906043148708:web:5d8d0cc9d0dbda90e01931",
-    measurementId: "G-J87QEG2RWR"
-  };
-
+var firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTHDOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGEBUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGINGSENDERID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENTID
+};
 firebase.initializeApp(firebaseConfig)
 
 export default firebase;

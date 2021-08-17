@@ -3,6 +3,7 @@ import {NavLink, useHistory,Link} from "react-router-dom"
 import { useAuth } from '../../contexts/AuthContext'
 import classes from "./Navbar.module.css"
 
+
 const Navbar = () => {
 
     const {logout, currentUser} = useAuth()
@@ -17,6 +18,7 @@ const Navbar = () => {
             alert("Failed to Logout")
         }
     }
+    
 
     return (
         <header className={classes.header}>
@@ -31,13 +33,13 @@ const Navbar = () => {
                         <NavLink to="/">Home</NavLink>
                     </li> 
                     <li>
-                        <NavLink to="/completed" activeClassName={classes.active}> Completed</NavLink>
+                        <NavLink to="/completed" activeclassname={classes.active}> Completed</NavLink>
                     </li>                   
                     <li>
-                        <NavLink to="/not-completed" activeClassName={classes.active}> Not Completed</NavLink>
+                        <NavLink to="/not-completed" activeclassname={classes.active}> Not Completed</NavLink>
                    </li>
                    <li>
-                        <Link onClick={onClickHandler} activeClassName={classes.active} > Logout</Link>
+                        <Link onClick={onClickHandler} to="/sign-in" activeclassname={classes.active} > Logout</Link>
                    </li>
                 </ul>
              </nav>
