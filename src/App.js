@@ -24,12 +24,14 @@ function App() {
   const fetchData =  useCallback(() => {
     database
     .doc(currentUser.uid)
-    .get().then((item) => {
-     const items = item.data()
-     const result = Object.entries(items).map((id) => id[1] )
-       setTodoList(result)
-       setTodoFilter(result)
-      console.log("Dasdad",result);
+    .collection("todo")
+    .get()
+    .then((item) => {
+     const items = item.docs.map((doc) => doc.data())
+    //  const result = Object.entries(items).map((id) => id[1] )
+       setTodoList(items)
+       setTodoFilter(items)
+      console.log("Dasdad",items);
      console.log(items);
     }) 
   },[])
@@ -55,13 +57,14 @@ function App() {
   const addTodoList = (task, priority) => {
 
     const id = nanoid();
-    const newTodo = {}
-    newTodo[id] = { text:task, id: id, completed: false, priority:priority } 
+    const newTodo  = { text:task, id: id, completed: false, priority:priority } 
     database
     .doc(currentUser.uid)
-    .set(newTodo, {merge:true})
+    .collection("todo")
+    .doc(id)
+    .set(newTodo)
     .then(() => {
-      setTodoList(prevList => [newTodo[id],...prevList])
+      setTodoList(prevList => [newTodo,...prevList])
     })
     .catch((err) => {
       console.log(err);
