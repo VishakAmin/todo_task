@@ -1,5 +1,5 @@
 
-import React,{useState, useEffect} from 'react';
+import React,{useState, useEffect, useCallback} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
@@ -17,23 +17,26 @@ function App() {
   const [todoFilter, setTodoFilter] = useState([])
   const [sortType, setSortType] = useState("")
   const {currentUser}  = useAuth()
-  const database = firebase.firestore().collection("user")  
+  const database = firebase.firestore().collection("user") 
+
+  const fetchData = useCallback(() => {
+    firebase.firestore().collection("user") 
+    .doc(currentUser.uid)
+    .collection("todo")
+    .get()
+    .then((item) => {
+     const items = item.docs.map((doc) => doc.data())
+       setTodoList(items)
+       setTodoFilter(items)
+    })
+    console.log("Helloo");
+  },[currentUser])
 
   useEffect(() => {
-    const fetchData = () => {
-      database
-      .doc(currentUser.uid)
-      .collection("todo")
-      .get()
-      .then((item) => {
-       const items = item.docs.map((doc) => doc.data())
-      //  const result = Object.entries(items).map((id) => id[1] )
-         setTodoList(items)
-         setTodoFilter(items)
-      }) 
-    }
     fetchData()
-    },[]) // eslint-disable-line react-hooks/exhaustive-deps
+    },[fetchData]) 
+   
+
 
   let todo = (
     <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>

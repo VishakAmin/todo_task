@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react'
+import React,{useState, useEffect, useCallback} from 'react'
 import TodoLists from '../TodoList/TodoLists';
 import { useAuth } from '../../contexts/AuthContext';
 import firebase from '../../../firebase';
@@ -6,22 +6,22 @@ import firebase from '../../../firebase';
 const TodoComp = () => {
     const [compList, setCompList] = useState([])
     const {currentUser} = useAuth()
-    const database = firebase.firestore().collection("user")  
+    
+    const fetchData = useCallback(() => {
+        firebase.firestore().collection("user")  
+        .doc(currentUser.uid)
+        .collection("todo")
+        .get()
+        .then((item) => {
+         const items = item.docs.map((doc) => doc.data())
+        setCompList(items.filter(list => list.completed === true))
+        }) 
+    },[currentUser])
 
     useEffect(() => {
-        const fetchData = () => {
-            database
-            .doc(currentUser.uid)
-            .collection("todo")
-            .get()
-            .then((item) => {
-             const items = item.docs.map((doc) => doc.data())
-            setCompList(items.filter(list => list.completed === true))
-            }) 
-          }
           fetchData()
-      }, []) //eslint-disable-line
-
+      }, [fetchData])
+      
     return (
         <div>
             <section id="lists">

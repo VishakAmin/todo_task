@@ -34,7 +34,7 @@ const SignUp = () => {
             firebase.firestore().collection("user")
             .doc(response.user.uid)
             .set({
-                
+                email : response.user.email
             })
              .then(() => {
                 history.push("/sign-in")              
