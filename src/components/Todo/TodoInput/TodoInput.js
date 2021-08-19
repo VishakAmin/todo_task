@@ -21,7 +21,6 @@ const TodoInput = ({edit, onAddTodo, onSubmit}) => {
   const formSubmitHandler = (e) => {
     e.preventDefault();
     edit ? onSubmit(inputValue,priority) : onAddTodo(inputValue, priority)
-    console.log(inputValue);
     setInputValue("")
     setPriority("")
   }

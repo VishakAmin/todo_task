@@ -3,53 +3,40 @@ import React,{useState, useEffect, useCallback} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
-import uuid from 'react-uuid'
+import { nanoid } from 'nanoid';
 import Button from './components/UI/Button/Button';
 import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
 import firebase from './firebase';
+import { useAuth } from './components/contexts/AuthContext';
 
-
-// const getlocalStorageItems = () => {
-//   const todo = localStorage.getItem('lists');
-//   if(todo){
-//     return JSON.parse(todo)
-//   }
-//   else{
-//     return []
-//   }
-// }
 
 function App() {
   const [todoList, setTodoList] = useState([])
-  const [incompleteTodo, setIncompletedTodo] = useState([])  
   const [priorityFilter,  setPriorityFilter] = useState("all")
   const [todoFilter, setTodoFilter] = useState([])
   const [sortType, setSortType] = useState("")
-  const [abc, setAbc] = useState([])
-  
-   const ref = firebase.firestore().collection("todo")
-  
-  
-   
-  
+  const {currentUser}  = useAuth()
+  const database = firebase.firestore().collection("user") 
+
+  const fetchData = useCallback(() => {
+    firebase.firestore().collection("user") 
+    .doc(currentUser.uid)
+    .collection("todo")
+    .get()
+    .then((item) => {
+     const items = item.docs.map((doc) => doc.data())
+       setTodoList(items)
+       setTodoFilter(items)
+    })
+    console.log("Helloo");
+  },[currentUser])
 
   useEffect(() => {
-    const fetchData = () => {
-      ref.get().then((item) => {
-        const items = item.docs.map((doc) => doc.data())
-        setTodoList(items)
-  
-      }) 
-    }
-    
     fetchData()
-    },[])
+    },[fetchData]) 
+   
 
-
-    console.log("todo",todoList);
-    console.log("Incomp",incompleteTodo);
-    console.log(sortType);
 
   let todo = (
     <p style={{textAlign:"center"}}>No Todo Found. Can you add one?</p>
@@ -60,12 +47,18 @@ function App() {
   )
 
   const addTodoList = (task, priority) => {
-    const newTodo = {text:task, id: uuid(), completed: false, priority:priority }
-    ref
-    .doc(newTodo.id)
+
+    const id = nanoid();
+    const newTodo  = { text:task, id: id, completed: false, priority:priority } 
+    database
+    .doc(currentUser.uid)
+    .collection("todo")
+    .doc(id)
     .set(newTodo)
     .then(() => {
       setTodoList(prevList => [newTodo,...prevList])
+      setTodoFilter(prevList => [newTodo,...prevList])
+
     })
     .catch((err) => {
       console.log(err);
@@ -74,9 +67,11 @@ function App() {
     setSortType("")
   }
 
-  const deleteTodolist = useCallback((id) => {
+  const deleteTodolist = (id) => {
 
-    ref
+    database
+    .doc(currentUser.uid)
+    .collection("todo")
     .doc(id)
     .delete()
     .then(() => {
@@ -85,13 +80,15 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-  },[])
+  }
 
   const updateTodoList = (id, newValue, newPriority) => {
 
     const updateTodo = {text:newValue, id:id, completed:false, priority:newPriority}
 
-    ref
+    database
+    .doc(currentUser.uid)
+    .collection("todo")
     .doc(id)
     .update(updateTodo)
     .then(() => {
@@ -105,7 +102,9 @@ function App() {
   }
 
   const getTodoById = (id) => (
-    ref
+    database
+    .doc(currentUser.uid)
+    .collection("todo")
     .doc(id)
     .get()
     .then((item) => {
@@ -117,11 +116,10 @@ function App() {
 
   const completedTodolist = async (id) => {
   
-    const newListUpdate = await getTodoById(id)
-      
-    console.log(newListUpdate);
-
-      ref
+    const newListUpdate = await getTodoById(id)      
+      database
+      .doc(currentUser.uid)
+      .collection("todo")
       .doc(id)
       .update({completed:!newListUpdate.completed})
       .then(() => {
@@ -132,22 +130,29 @@ function App() {
       })
   }
 
-  const removeAllList = () => {
-    ref
-    .doc()
-
-
-    setTodoList(todoList.filter(list => list.completed === false))
+  const removeAllList = async () => {
+    
+    const completeList = await firebase.firestore().collection('user').doc(currentUser.uid).collection("todo").where("completed","==",true).get()
+    completeList.forEach(doc => {
+        database
+        .doc(currentUser.uid)
+        .collection("todo")
+        .doc(doc.data().id)
+        .delete()
+        .then(() => {
+          setTodoList(todoList.filter(list => list.completed === false))
+        }) 
+    });
+    setTodoFilter(todoList)
     setPriorityFilter("")
     setSortType("")
+    
   }
 
   const handlePriorityFilter = (e) => {
     setPriorityFilter(e.target.value)
-    const filterTodo = e.target.value === "all" ? todoList : e.target.value === "high" ? todoList.filter(list => list.priority === "high")  : e.target.value === "low" ? todoList.filter(list => list.priority === "low") : todoList.filter(list => list.priority === "medium")  
-    setTodoFilter(filterTodo)
-    // setCompletedTodo(filterTodo.filter(list => list.completed === true))
-    // setIncompletedTodo(filterTodo.filter(list => list.completed === false))
+    const filterTodo = e.target.value === "all" ? todoFilter : e.target.value === "high" ? todoFilter.filter(list => list.priority === "high")  : e.target.value === "low" ? todoFilter.filter(list => list.priority === "low") : todoFilter.filter(list => list.priority === "medium")  
+    setTodoList(filterTodo)
   }
   
   const handleSort = (e) => {
@@ -158,14 +163,12 @@ function App() {
       return CheckSort * a.text.localeCompare(b.text)
     })
     setTodoList(sortArray)
-    console.log("sasas",sortArray);
   }
   
 
   const incomp =  todoList.filter(list => list.completed === false)
   const comp =  todoList.filter(list => list.completed === true)
-
-  console.log("INCOMPELETD", comp);
+  
   if ( incomp.length > 0&&  todoList.length > 0) {
     todo = (
       <TodoLists list={incomp} onDeletelist={deleteTodolist} onCompletedList ={completedTodolist} onUpdateTodoList = {updateTodoList} check="Incomplete"/>
@@ -179,7 +182,6 @@ function App() {
 
   const onDragEnd = (result) => {
       const {draggableId, destination, source} = result;
-      console.log(result);
       if(!destination){
         return
       }
@@ -192,7 +194,6 @@ function App() {
       const dragableItem = newTodo[source.index]
       newTodo.splice(source.index, 1)
       newTodo.splice(destination.index, 0, dragableItem)
-      console.log("dsdsdsd",newTodo);
       setTodoList(newTodo)
       //  setCompletedTodo(todoList.filter(list => list.completed === true))
       //  setIncompletedTodo(todoList.filter(list => list.completed === false))
@@ -209,8 +210,6 @@ function App() {
 
   return (
     <div >
-      
-
       <h3 className="header">
       What things you wanna do today?
       </h3>

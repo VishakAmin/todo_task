@@ -1,26 +1,28 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState,useEffect, useCallback} from 'react'
 import TodoLists from '../TodoList/TodoLists';
-
-
-const getlocalStorageItems = () => {
-    const todo = localStorage.getItem('lists');
-    if(todo){
-      const comp = JSON.parse(todo)
-      return comp.filter(list => list.completed === false)
-
-    }
-    else{
-      return []
-    }
-}
-
+import { useAuth } from '../../contexts/AuthContext';
+import firebase from '../../../firebase';
 
 const TodoInComp = () => {
     const [inCompList, setInCompList] = useState([])
-    useEffect(() => {
-      setInCompList(getlocalStorageItems())
-    }, [])
+    const {currentUser} = useAuth()
+    
 
+    const fetchData = useCallback(() => {
+      firebase.firestore().collection("user")
+      .doc(currentUser.uid)
+      .collection("todo")
+      .get()
+      .then((item) => {
+       const items = item.docs.map((doc) => doc.data())
+      setInCompList(items.filter(list => list.completed === false))
+      }) 
+    },[currentUser])
+
+    useEffect(() => {
+          fetchData()
+      }, [fetchData])
+ 
     return (
         <div>
               <section id="lists">
