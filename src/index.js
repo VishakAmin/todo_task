@@ -12,7 +12,7 @@ import SignUp from './components/Todo/SignUp/SignUp';
 import SignIn from './components/Todo/SignIn/SignIn';
 import { AuthProvider } from './components/contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
-
+import App1 from './App1';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -32,7 +32,6 @@ ReactDOM.render(
         <PrivateRoute exact path="/todo/:id" component={TodoDetail}/>
       </Switch>
       </Router>
-
     </AuthProvider>
   </React.StrictMode>,
   document.getElementById('root')
