@@ -9,7 +9,8 @@ import Select from './components/UI/Select/Select';
 import {DragDropContext, Droppable} from "react-beautiful-dnd"
 import firebase from './firebase';
 import { useAuth } from './components/contexts/AuthContext';
-
+import { observer } from 'mobx-react-lite'
+import { useTodos } from './TodoStore'
 
 function App() {
   const [todoList, setTodoList] = useState([])
@@ -18,24 +19,31 @@ function App() {
   const [sortType, setSortType] = useState("")
   const {currentUser}  = useAuth()
   const database = firebase.firestore().collection("user") 
+  const todoStore = useTodos()
 
-  const fetchData = useCallback(() => {
-    firebase.firestore().collection("user") 
-    .doc(currentUser.uid)
-    .collection("todo")
-    .get()
-    .then((item) => {
-     const items = item.docs.map((doc) => doc.data())
-       setTodoList(items)
-       setTodoFilter(items)
-    })
-    console.log("Helloo");
-  },[currentUser])
+  // const fetchData = useCallback(() => {
+  //   firebase.firestore().collection("user") 
+  //   .doc(currentUser.uid)
+  //   .collection("todo")
+  //   .get()
+  //   .then((item) => {
+  //    const items = item.docs.map((doc) => doc.data())
+  //      setTodoList(items)
+  //      setTodoFilter(items)
+  //   })
+  //   console.log("Helloo");
+  // },[currentUser])
 
   useEffect(() => {
-    fetchData()
-    },[fetchData]) 
-   
+    if(todoStore.todos.length > 0){
+        setTodoList(todoStore.todos)
+        setTodoFilter(todoStore.todos)
+    }
+//    fetchData()
+    },[]) 
+
+    
+  console.log(todoStore.todos.id);
 
 
   let todo = (
@@ -48,54 +56,61 @@ function App() {
 
   const addTodoList = (task, priority) => {
 
-    const id = nanoid();
-    const newTodo  = { text:task, id: id, completed: false, priority:priority } 
-    database
-    .doc(currentUser.uid)
-    .collection("todo")
-    .doc(id)
-    .set(newTodo)
-    .then(() => {
-      setTodoList(prevList => [newTodo,...prevList])
-      setTodoFilter(prevList => [newTodo,...prevList])
+    const newTodo  = { text:task, id: nanoid(), completed: false, priority:priority } 
 
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    setPriorityFilter("")
-    setSortType("")
-  }
+    todoStore.addTodo(newTodo)
+
+
+  //   const id = nanoid();
+  //   const newTodo  = { text:task, id: id, completed: false, priority:priority } 
+  //   database
+  //   .doc(currentUser.uid)
+  //   .collection("todo")
+  //   .doc(id)
+  //   .set(newTodo)
+  //   .then(() => {
+  //     setTodoList(prevList => [newTodo,...prevList])
+  //     setTodoFilter(prevList => [newTodo,...prevList])
+
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   })
+  //   setPriorityFilter("")
+  //   setSortType("")
+   }
 
   const deleteTodolist = (id) => {
 
-    database
-    .doc(currentUser.uid)
-    .collection("todo")
-    .doc(id)
-    .delete()
-    .then(() => {
-      setTodoList(prevList =>  prevList.filter(list => list.id !== id))
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    todoStore.deleteTodo(id)
+    // database
+    // .doc(currentUser.uid)
+    // .collection("todo")
+    // .doc(id)
+    // .delete()
+    // .then(() => {
+    //   setTodoList(prevList =>  prevList.filter(list => list.id !== id))
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
   }
 
   const updateTodoList = (id, newValue, newPriority) => {
 
     const updateTodo = {text:newValue, id:id, completed:false, priority:newPriority}
+    todoStore.updateTodo(id, updateTodo)
 
-    database
-    .doc(currentUser.uid)
-    .collection("todo")
-    .doc(id)
-    .update(updateTodo)
-    .then(() => {
-      setTodoList(prevList =>  prevList.map( list =>  (
-        list.id === id ? updateTodo : list
-      )))
-    })
+    // database
+    // .doc(currentUser.uid)
+    // .collection("todo")
+    // .doc(id)
+    // .update(updateTodo)
+    // .then(() => {
+    //   setTodoList(prevList =>  prevList.map( list =>  (
+    //     list.id === id ? updateTodo : list
+    //   )))
+    // })
 
     setPriorityFilter("")
 
@@ -116,18 +131,20 @@ function App() {
 
   const completedTodolist = async (id) => {
   
-    const newListUpdate = await getTodoById(id)      
-      database
-      .doc(currentUser.uid)
-      .collection("todo")
-      .doc(id)
-      .update({completed:!newListUpdate.completed})
-      .then(() => {
-        setTodoList(prevList => prevList.map( list => (
-          list.id === id ? {text:newListUpdate.text, id:id ,completed: !newListUpdate.completed, priority : newListUpdate.priority} : list
-        )
-        ))
-      })
+    // const newListUpdate = await getTodoById(id)      
+    //   database
+    //   .doc(currentUser.uid)
+    //   .collection("todo")
+    //   .doc(id)
+    //   .update({completed:!newListUpdate.completed})
+    //   .then(() => {
+    //     setTodoList(prevList => prevList.map( list => (
+    //       list.id === id ? {text:newListUpdate.text, id:id ,completed: !newListUpdate.completed, priority : newListUpdate.priority} : list
+    //     )
+    //     ))
+    //   })
+      todoStore.todoCompleted(id)
+
   }
 
   const removeAllList = async () => {
@@ -203,8 +220,6 @@ function App() {
     if (destination.droppableId !== source.droppableId) {
         completedTodolist(draggableId)
   }
-
-
   }
   
 
@@ -232,7 +247,6 @@ function App() {
                 <option value = "asc" >aA-zZ</option>
                 <option value = "dsc">zZ-aA</option>
            </Select>
-
           </div>
         </div>
 
@@ -276,4 +290,4 @@ function App() {
   );
 }
 
-export default App;
+export default  observer(App);
