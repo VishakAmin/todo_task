@@ -11,6 +11,7 @@ const TodoLists = ({onDeletelist, onCompletedList,onUpdateTodoList,onEditList,li
    
               { list.map((list,index) => (
                 <TodoListItem
+                  item ={list}
                   key={list.id}
                   id={list.id}
                   onDelete={onDeletelist}

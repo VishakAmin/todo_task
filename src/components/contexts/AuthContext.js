@@ -1,5 +1,8 @@
 import React,{useState,useEffect, useContext} from "react";
 import firebase from "../../firebase";
+import { useTodos } from "../../TodoStore";
+
+
 
 const AuthContext = React.createContext()
 
@@ -12,30 +15,19 @@ export const AuthProvider = ({children}) => {
 
     // const [todoList, setTodoList] = useState([])
     const [currentUser, setCurrentUser] = useState()
+    const [todos, setTodos] = useState()
     const [loading, setLoading] = useState(true)
-    
+    const todoStore = useTodos();
 
   
     useEffect(() => {
        const unsubcribe =  firebase.auth().onAuthStateChanged(user => {
            setCurrentUser(user)
-//           setCurrentUserID(user.uid)
-//     firebase.firestore().collection("user") 
-//     .doc(user.uid)
-//     .collection("todo")
-//     .get()
-//     .then((item) => {
-//      const items = item.docs.map((doc) => doc.data())
-// //  const result = Object.entries(items).map((id) => id[1] )
-//     console.log("Dasdad",items);
-//     console.log(items);
-//     setTodoList(item)
-//     })
-           setLoading(false)           
+            setLoading(false)           
         })
-    //    fetchData() 
+
         return unsubcribe
-    }, [])
+    }, [todos])
 
 
 
@@ -51,10 +43,8 @@ export const AuthProvider = ({children}) => {
         return firebase.auth().signOut()
     }
 
-  
-    
-
     const contextValue = {
+        todos,
         currentUser,
         signup,
         login,
