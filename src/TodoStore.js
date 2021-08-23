@@ -1,4 +1,4 @@
-import {types, onSnapshot, flow, applySnapshot, getSnapshot} from "mobx-state-tree"
+import {types, } from "mobx-state-tree"
 import firebase from './firebase';
 
 
@@ -16,7 +16,6 @@ export const TodoModel = types
         self.completed = !comp;
     }
 }))
-
 .views((self) => ({
     get todosOfUser(){
          return self.text
@@ -52,13 +51,9 @@ export const TodoStore = types
     },
 
     setTodos(todos){
-        self.todos = todos
-        
+        self.todos = todos  
     },
-    setFTodos(todos){
-        self.filterTodos = todos
-    },
-    
+ 
 
     fetchTodo(id){
         database
@@ -70,9 +65,7 @@ export const TodoStore = types
                 return doc.data()
             })
             if (items){
-                console.log(items);
                 self.setTodos(items)
-                self.setFTodos(items)
             }
     })
     .catch((err) => {
@@ -96,13 +89,13 @@ export const TodoStore = types
         return self.todos.filter(todo => todo.completed === false)    
     },
     filterTodoList(){
-        const _filter = self.filterType === "all" ? self.filterTodos :  self.filterType === "low" ? self.filterTodos.filter(todo => todo.priority === "low")  : "high"
-        console.log(self.filterType,_filter);
-        return self.setTodos(_filter)
+        return self.filterType === "all" ? self.todos :  self.filterType === "low" ? self.todos.filter(todo => todo.priority === "low")  : self.filterType === "high" ? self.todos.filter(list => list.priority === "high") : self.todos.filter(list => list.priority === "medium")
     },
-    // get sortTodoList(){
-    //     return self.todos.filter()
-    // }
+     sortTodoList(){
+         const  newArray =[...self.todos]
+         return  newArray.sort((a,b) => self.sortType === "asc" ? 1 * a.text.localeCompare(b.text): -1 * a.text.localeCompare(b.text))
+    }
+
 
 }))
 

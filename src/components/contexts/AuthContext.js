@@ -1,6 +1,5 @@
 import React,{useState,useEffect, useContext} from "react";
 import firebase from "../../firebase";
-import { useTodos } from "../../TodoStore";
 
 
 
@@ -15,9 +14,8 @@ export const AuthProvider = ({children}) => {
 
     // const [todoList, setTodoList] = useState([])
     const [currentUser, setCurrentUser] = useState()
-    const [todos, setTodos] = useState()
     const [loading, setLoading] = useState(true)
-    const todoStore = useTodos();
+
 
   
     useEffect(() => {
@@ -27,7 +25,7 @@ export const AuthProvider = ({children}) => {
         })
 
         return unsubcribe
-    }, [todos])
+    }, [])
 
 
 
@@ -44,7 +42,7 @@ export const AuthProvider = ({children}) => {
     }
 
     const contextValue = {
-        todos,
+
         currentUser,
         signup,
         login,

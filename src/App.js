@@ -1,5 +1,5 @@
 
-import React,{useState, useEffect, useCallback} from 'react';
+import React,{useState, useEffect} from 'react';
 import './App.css';
 import TodoInput from './components/Todo/TodoInput/TodoInput';
 import TodoLists from './components/Todo/TodoList/TodoLists';
@@ -17,15 +17,13 @@ function App() {
   const [priorityFilter,  setPriorityFilter] = useState("all")
   const [todoFilter, setTodoFilter] = useState([])
   const [sortType, setSortType] = useState("")
-  const {currentUser,todos}  = useAuth()
+  const {currentUser}  = useAuth()
   const database = firebase.firestore().collection("user") 
   const todoStore = useTodos()
 
   useEffect(() => {
       currentUser && todoStore.fetchTodo(currentUser.uid)
-      console.log(todoStore.todos);
          setTodoList(todoStore.todos);
-         setTodoFilter(todoStore.todos)
         
     },[todoStore, currentUser]) 
 
@@ -117,7 +115,7 @@ function App() {
       .then(() => {  
         todoStore.completedTodo(id)        
       })
-      // updatedTodo.completed = !updatedTodo.complete
+   
   }
 
   const removeAllList = async () => {
@@ -141,21 +139,23 @@ function App() {
 
   const handlePriorityFilter = (e) => {
      setPriorityFilter(e.target.value)
-    // const filterTodo = e.target.value === "all" ? todoFilter : e.target.value === "high" ? todoFilter.filter(list => list.priority === "high")  : e.target.value === "low" ? todoFilter.filter(list => list.priority === "low") : todoFilter.filter(list => list.priority === "medium")  
-    // setTodoList(filterTodo)
     todoStore.setFilter(e.target.value)
-    console.log(todoStore.filterType)
-    todoStore.filterTodoList()
+    const tempList = todoStore.filterTodoList()
+    setTodoList(tempList)
   }
   
   const handleSort = (e) => {
-    setSortType(e.target.value);
-    const newList = [...todoList]
-    const sortArray = newList.sort( (a,b) => {
-      const CheckSort = (sortType === "asc") ? -1 : 1;
-      return CheckSort * a.text.localeCompare(b.text)
-    })
-    setTodoList(sortArray)
+    setSortType(e.target.value)
+    todoStore.setSort(e.target.value)
+    const tempList = todoStore.sortTodoList()
+    setTodoList(tempList)
+    // setSortType(e.target.value);
+    // const newList = [...todoList]
+    // const sortArray = newList.sort( (a,b) => {
+    //   const CheckSort = (sortType === "asc") ? -1 : 1;
+    //   return CheckSort * a.text.localeCompare(b.text)
+    // })
+    // setTodoList(sortArray)
   }
   
 
