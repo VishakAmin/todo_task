@@ -6,7 +6,7 @@ import classes from "./TodoListItem.module.css"
 import {useHistory} from "react-router-dom" 
 
 
-const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp, index,compList}) => {
+const TodoListItem = ({onDelete, item, onComplete, id, text, priority, onUpdate, comp, index,compList}) => {
 
 
   const [edit, setEdit] = useState({
@@ -24,7 +24,9 @@ const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp,
   }
   
   const completeHandler = () => {
-    onComplete(id,comp,text, priority)
+    // console.log(comp,id);
+    // item.todoCompleted(comp)
+    onComplete(id)    
   }
 
   const submitHandler = (value, priority) => {
@@ -34,7 +36,6 @@ const TodoListItem = ({onDelete, onComplete, id, text, priority, onUpdate, comp,
         value : ""
       })
   }
-
   
   return (
       <>

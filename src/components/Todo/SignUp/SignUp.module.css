@@ -43,3 +43,12 @@
     color: black;
     font-weight: 500;
 }
+
+.inputBox{
+    display: flex;
+    justify-content: space-between;
+}
+
+.firstname{
+    width: 45%;
+}

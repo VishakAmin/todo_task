@@ -1,27 +1,16 @@
 import React,{useState, useEffect, useCallback} from 'react'
 import TodoLists from '../TodoList/TodoLists';
-import { useAuth } from '../../contexts/AuthContext';
-import firebase from '../../../firebase';
+import { useTodos } from '../../../TodoStore';
 
 const TodoComp = () => {
     const [compList, setCompList] = useState([])
-    const {currentUser} = useAuth()
-    
-    const fetchData = useCallback(() => {
-        firebase.firestore().collection("user")  
-        .doc(currentUser.uid)
-        .collection("todo")
-        .get()
-        .then((item) => {
-         const items = item.docs.map((doc) => doc.data())
-        setCompList(items.filter(list => list.completed === true))
-        }) 
-    },[currentUser])
-
+    const todoStore = useTodos() 
     useEffect(() => {
-          fetchData()
-      }, [fetchData])
-      
+        //currentUser && todoStore.fetchTodo(currentUser.uid)
+        setCompList(todoStore.todoCompletedList)
+    }, [])
+ 
+
     return (
         <div>
             <section id="lists">

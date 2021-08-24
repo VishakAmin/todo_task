@@ -4,6 +4,8 @@ import classes from "./SignUp.module.css"
 import {Link,useHistory} from "react-router-dom"
 import firebase from '../../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useForm } from 'react-hook-form';
+import { States } from '../../utils/states';
 
 
 const SignUp = () => {
@@ -12,42 +14,41 @@ const SignUp = () => {
     const passwordInputRef = useRef()
     const history = useHistory()
     const {signup} = useAuth();
-
+    const {register, handleSubmit, formState:{errors}} = useForm()
     // const database = firebase.firestore().collection("user")  
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('')
 
-    const onSubmitHandler =  async (e) => {
-        e.preventDefault();
-        const email = emailInputRef.current.value
-        const password = passwordInputRef.current.value
-
-        if (password.length < 8){
-            alert("Password Should be greater than 8 character")
-            setError("Password Should be greater than 8 character")
-        }
+    console.log(States)
+    const onSubmitHandler =  async (data) => {
+        console.log(data);
      
         try {
             setIsLoading(true)
             setError("")
-            signup(email, password).then((response) =>{
+            signup(data.email, data.password).then((response) =>{
             firebase.firestore().collection("user")
             .doc(response.user.uid)
             .set({
-                email : response.user.email
+                firstName: data.firstName,
+                lastName: data.lastName, 
+                email : response.user.email,
+                phoneNumber: data.number,
+                states: data.state,
+                gender:data.gender
             })
              .then(() => {
                 history.push("/sign-in")              
              })                
             }).catch(err => {
                 setError("Failed to create a account. Please Try Again")
+                console.log(err);
             })
         }
         catch{
-            setError("Failed to create a account. Please Try Again")
+            setError("Failed to create a account. Please Try Again 2")
         }
         setIsLoading(false)
-    //    console.log(message);
         }
 
 
@@ -56,24 +57,63 @@ const SignUp = () => {
             <section id="todolist-form">
             <h1 className={classes.header}>Just the Basics</h1>
             {error}
-            <form className={classes.formControl} onSubmit={onSubmitHandler}>
+            <form className={classes.formControl} onSubmit={handleSubmit(onSubmitHandler)}>
+                <div className={classes.inputBox}>
+                    <div className={classes.firstname}>
+                    <label htmlFor="text">
+                            Firstname
+                    </label>
+                    <input  { ...register("firstName" , {required: true, maxLength: 20})} type="text" required placeholder="Enter First Name" ref={nameInputRef}/>
+                    {errors.firstName && <p>First name is required.</p>}
+                    </div>
+                    <div className={classes.firstname}>
+                    <label htmlFor="text">
+                            Lastname
+                    </label>
+                    <input { ...register("lastName" , {required: true, maxLength: 20})} type="text" required placeholder="Enter Last Name" ref={nameInputRef}/>
+                    {errors.lastName && <p>Last name is required.</p>}
+                    </div>                 
+                    </div>
                 <div>
                     <label htmlFor="text">
-                            Name
-                    </label>
-                    <input type="text" required placeholder="Enter Name" ref={nameInputRef}/>
-                </div>
-                <div>
-                    <label htmlFor="email">
                             Email
                     </label>
-                    <input type="email" required placeholder="Enter Email" ref={emailInputRef}/>
+                    <input { ...register("email" , {required: true, maxLength: 40, pattern: /^\S+@\S+$/i}) } type="email" required placeholder="Enter Email" ref={emailInputRef}/>
+                    {errors.email && <p>Email is must.</p>}
+                </div>
+                <div>
+                    <label htmlFor="text">
+                            Phone No.
+                    </label>
+                    <input { ...register("number" , {required: true, minLength: 10987563210}) } type="tel" required placeholder="Enter Phone Number" ref={emailInputRef}/>
+                    {errors.number && <p>Please enter the phone number.</p>}
+
+                </div>
+                <div>
+                    <label htmlFor="text">
+                            State
+                    </label>
+                    <select { ...register("state" , {required: true}) }>
+                     <option value = ""  >Choose State</option>
+                        {States.map((state,index) => (
+                            
+                            <option key={index} value={state}>{state}</option>
+                        ))}
+                     </select>   
+                </div>
+                <div>
+                    <label htmlFor="text">
+                          Gender
+                    </label>
+                    <input {...register("gender", { required: true })} type="radio" value="Male" />Male
+                    <input {...register("gender", { required: true })} type="radio" value="Female" /> Female
+                    {errors.gender && <p>Please select the gender.</p>}
                 </div>
                 <div>
                     <label htmlFor="email" >
                             Your Password
                     </label>
-                    <input type="password" required placeholder="Enter Password" ref={passwordInputRef}/>
+                    <input {...register("password", { required: true })} type="password" required placeholder="Enter Password"/>
                 </div> 
                 <div>
                     <Button disabled={isLoading}>Sign Up</Button>               
