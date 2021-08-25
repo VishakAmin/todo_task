@@ -19,6 +19,18 @@
     border-radius: 0.5rem;
 }
 
+.formControl select {
+    display: block;
+    width: 100%;
+    border: 1px solid #ccc;
+    font: inherit;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.5rem;
+    border-radius: 0.5rem;
+}
+
+
+
 .formControl input:focus{
     outline: none;
     background: #fff;
@@ -52,3 +64,30 @@
 .firstname{
     width: 45%;
 }
+
+.radiobtn{
+    display: flex;
+    width: 30%;
+    margin-top: 0.5rem;
+    height: 1.25rem;
+}
+
+.terms{    
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 15px;
+}
+
+.terms input {
+    padding: 0;
+     height: 2.8rem;
+     width: 1rem;
+     margin-bottom: 0;
+    cursor: pointer;
+}
+
+.terms p {
+    position: relative;
+    cursor: pointer;
+}
+

@@ -1,20 +1,31 @@
-import React,{useState, useRef} from 'react'
+import React,{useState} from 'react'
 import Button from '../../UI/Button/Button'
 import classes from "./SignUp.module.css"
 import {Link,useHistory} from "react-router-dom"
 import firebase from '../../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useForm } from 'react-hook-form';
+import { useForm,Controller } from 'react-hook-form';
 import { States } from '../../utils/states';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
+
+const schema = yup.object().shape({
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+    email: yup.string().email().required(),
+    number: yup.number().test('len', 'Must be exactly 10 characters', val => val && val.toString().length === 10 ).required(),
+    state:  yup.string().required(),
+    gender:  yup.string().nullable().required(),
+    password: yup.string().required(),
+    acceptTerms: yup.bool().oneOf([true], 'Accept Terms & Conditions')
+})
 
 const SignUp = () => {
-    const nameInputRef = useRef()
-    const emailInputRef = useRef()
-    const passwordInputRef = useRef()
+
     const history = useHistory()
     const {signup} = useAuth();
-    const {register, handleSubmit, formState:{errors}} = useForm()
+    const {register, handleSubmit, formState:{errors}, reset, control} = useForm({  resolver: yupResolver(schema)})
     // const database = firebase.firestore().collection("user")  
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('')
@@ -49,6 +60,7 @@ const SignUp = () => {
             setError("Failed to create a account. Please Try Again 2")
         }
         setIsLoading(false)
+        reset();
         }
 
 
@@ -63,58 +75,100 @@ const SignUp = () => {
                     <label htmlFor="text">
                             Firstname
                     </label>
-                    <input  { ...register("firstName" , {required: true, maxLength: 20})} type="text" required placeholder="Enter First Name" ref={nameInputRef}/>
-                    {errors.firstName && <p>First name is required.</p>}
+                    <Controller 
+                        render = {({field}) => <input {...field} type="text" placeholder="Enter First Name"/>}
+                        control={control}
+                        name="firstName"
+                    />
+                    <p>{errors.firstName?.message}</p> 
                     </div>
                     <div className={classes.firstname}>
                     <label htmlFor="text">
                             Lastname
                     </label>
-                    <input { ...register("lastName" , {required: true, maxLength: 20})} type="text" required placeholder="Enter Last Name" ref={nameInputRef}/>
-                    {errors.lastName && <p>Last name is required.</p>}
+                    <Controller 
+                        render = {({field}) => <input {...field} type="text"  placeholder="Enter Last Name" /> }
+                        control={control}
+                        name="lastName"
+                    />
+                    <p>{errors.lastName?.message}</p> 
                     </div>                 
                     </div>
                 <div>
                     <label htmlFor="text">
                             Email
                     </label>
-                    <input { ...register("email" , {required: true, maxLength: 40, pattern: /^\S+@\S+$/i}) } type="email" required placeholder="Enter Email" ref={emailInputRef}/>
-                    {errors.email && <p>Email is must.</p>}
+                        <Controller 
+                        render = {({field}) =>   <input {...field} type="email"  placeholder="Enter Email" /> }
+                        control={control}
+                        name="email"
+                    />
+                    <p>{errors.email?.message}</p> 
                 </div>
                 <div>
                     <label htmlFor="text">
-                            Phone No.
+                       Phone No.
                     </label>
-                    <input { ...register("number" , {required: true, minLength: 10987563210}) } type="tel" required placeholder="Enter Phone Number" ref={emailInputRef}/>
-                    {errors.number && <p>Please enter the phone number.</p>}
-
+                    <Controller 
+                        render = {({field}) => <input { ...field } type="tel"  placeholder="Enter Phone Number" />}
+                        control={control}
+                        name="number"
+                    />
+                    <p>{errors.number?.message}</p> 
                 </div>
                 <div>
                     <label htmlFor="text">
                             State
                     </label>
-                    <select { ...register("state" , {required: true}) }>
-                     <option value = ""  >Choose State</option>
-                        {States.map((state,index) => (
-                            
-                            <option key={index} value={state}>{state}</option>
-                        ))}
-                     </select>   
+                    <Controller 
+                        render = {({field}) => (
+                            <select { ...field }>
+                            <option value = ""  >Choose State</option>
+                               {States.map((state,index) => (
+                                   
+                                   <option key={index} value={state}>{state}</option>
+                               ))}
+                            </select>
+                        )} 
+                        control={control}
+                        name="state"
+                    />  
+                     <p>{errors.state?.message}</p> 
                 </div>
                 <div>
                     <label htmlFor="text">
                           Gender
                     </label>
-                    <input {...register("gender", { required: true })} type="radio" value="Male" />Male
-                    <input {...register("gender", { required: true })} type="radio" value="Female" /> Female
-                    {errors.gender && <p>Please select the gender.</p>}
+                    <div className={classes.radiobtn}>
+                        <input {...register("gender")} type="radio" value="Male" />Male
+                        <input {...register("gender")} type="radio" value="Female" /> Female
+                    </div>
+                    <p>{errors.gender?.message}</p> 
                 </div>
                 <div>
                     <label htmlFor="email" >
                             Your Password
                     </label>
-                    <input {...register("password", { required: true })} type="password" required placeholder="Enter Password"/>
+                    <Controller 
+                        render = {({field}) => <input {...field} type="password"  placeholder="Enter Password"/>}
+                        control={control}
+                        name="password"
+                    />
+                   <p>{errors.password?.message}</p> 
                 </div> 
+            
+                <div className={classes.terms}>    
+                    
+                    <Controller 
+                        render = {({field}) => <input type='checkbox' {...field}  id="acceptTerms"/>}
+                        control={control}
+                        name="password"
+                    />
+                    <p for="checkbox">Please accept the Terms & Conditions.</p>
+ 
+                 </div>
+                 <p>{errors.acceptTerms?.message}</p>
+                
                 <div>
                     <Button disabled={isLoading}>Sign Up</Button>               
                 </div>
